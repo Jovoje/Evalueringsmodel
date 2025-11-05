@@ -173,6 +173,7 @@ h1 {
   display: flex;
   gap: 8px;
   margin-bottom: 16px;
+  flex-wrap: wrap;
 }
 
 .mode-select button {
@@ -185,6 +186,9 @@ h1 {
   font-weight: 600;
   box-shadow: 0 2px 6px rgba(196, 45, 45, 0.06);
   cursor: pointer;
+  flex: 1;
+  min-width: fit-content;
+  text-align: center;
 }
 
 .mode-select button.active {
@@ -259,4 +263,76 @@ h1 {
   color: #1500d4;
   font-family: 'Manrope-bold', sans-serif;
 }
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+  .app {
+    margin: 10px;
+    padding: 12px;
+  }
+
+  h1 {
+    font-size: 20px;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+
+  .mode-select {
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .mode-select button {
+    padding: 8px 12px;
+    font-size: 14px;
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .app {
+    margin: 5px;
+    padding: 8px;
+  }
+
+  h1 {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+
+  .mode-select {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  .mode-select button {
+    padding: 10px 8px;
+    font-size: 13px;
+    flex: none;
+  }
+
+  .row {
+    grid-template-columns: 1fr 50px;
+    gap: 8px;
+    padding: 6px;
+  }
+
+  .label {
+    font-size: 14px;
+  }
+
+  .input input {
+    font-size: 14px;
+    padding: 6px 8px;
+  }
+
+  .result {
+    margin-top: 16px;
+    justify-content: center;
+  }
+}
 </style>
+
