@@ -6,7 +6,8 @@ import './style/global.css'
 const modes = [
   { key: 'begynder', label: 'Begynder' },
   { key: 'ekspertsystem', label: 'Ekspertsystem' },
-  { key: 'mellemting', label: 'Mellemting' }
+  { key: 'mellemting', label: 'Mellemting' },
+  { key: 'vækkeur', label: 'Vækkeur' }
 ]
 
 const questionsByMode = {
@@ -33,7 +34,12 @@ const questionsByMode = {
     { text: 'Let at lære', weight: 35 },
     { text: 'Sprog', weight: 15 },
     { text: 'Kontrol', weight: 20 }
-  ]
+  ],
+  vækkeur: [
+    { text: 'Look and feel', weight: 45 },
+    { text: 'Let at lære', weight: 45 },
+    { text: 'Kontrol', weight: 10 }
+    ]
 }
 
 const selectedMode = ref(modes[0].key)
