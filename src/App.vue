@@ -1,4 +1,3 @@
-// ...existing code...
 <script setup>
 import { ref, computed, watch } from 'vue'
 import './style/global.css' 
@@ -12,25 +11,28 @@ const modes = [
 
 const questionsByMode = {
   begynder: [
-    'Let at lære',
-    'Kontrol',
-    'Fejlhåndtering',
-    'Hastighed',
-    'Look & feel'
+    { text: 'Fejlhåndtering', weight: 10 },
+    { text: 'Look and feel', weight: 25 },
+    { text: 'Let at lære', weight: 40 },
+    { text: 'Sprog', weight: 15 },
+    { text: 'Kontrol', weight: 10 }
   ],
   ekspertsystem: [
-    'Fleksibilitet',
-    'Avanceret kontrol',
-    'Fejltilstande håndtering',
-    'Ydeevne',
-    'Udvidet brugerfeedback'
+    { text: 'Fejlhåndtering', weight: 5 },
+    { text: 'Look and feel', weight: 10 },
+    { text: 'Hastighed i brug', weight: 30 },
+    { text: 'Let at lære', weight: 15 },
+    { text: 'Sprog', weight: 20 },
+    { text: 'Nemt at huske', weight: 10 },
+    { text: 'Kontrol', weight: 10 }
   ],
   mellemting: [
-    'Balance i funktioner',
-    'Forudsigelig kontrol',
-    'Fejlbeskeder',
-    'Responsivitet',
-    'Design & konsistens'
+    { text: 'Fejlhåndtering', weight: 10 },
+    { text: 'Look and feel', weight: 10 },
+    { text: 'Hastighed i brug', weight: 10 },
+    { text: 'Let at lære', weight: 35 },
+    { text: 'Sprog', weight: 15 },
+    { text: 'Kontrol', weight: 20 }
   ]
 }
 
@@ -44,20 +46,45 @@ watch(selectedMode, (newMode) => {
 })
 
 function setAnswer(idx, val) {
-  const n = Number(val)
-  answers.value[idx] = Number.isFinite(n) && n >= 1 && n <= 5 ? n : null
+  const trimmed = val.trim()
+  if (trimmed === '') {
+    answers.value[idx] = null
+    return
+  }
+  // Replace comma with period for parsing
+  const normalized = trimmed.replace(',', '.')
+  const n = Number(normalized)
+  if (Number.isFinite(n) && n >= 1 && n <= 5) {
+    answers.value[idx] = trimmed
+  }
 }
 
 const average = computed(() => {
-  // only show result when ALL inputs have a valid number (1-5)
   if (!answers.value.length) return null
-  if (answers.value.some(v => v === null || v === undefined || Number.isNaN(Number(v)))) {
+  
+  const nums = answers.value.map(v => {
+    if (v === null || v === undefined) return null
+    const normalized = v.toString().replace(',', '.')
+    return Number(normalized)
+  })
+  
+  if (nums.some(n => n === null || Number.isNaN(n))) {
     return null
   }
-  const nums = answers.value.map(v => Number(v))
-  const sum = nums.reduce((s, v) => s + v, 0)
-  return Math.round((sum / nums.length) * 10) / 10 // one decimal
+  
+  // Calculate weighted average
+  let weightedSum = 0
+  let totalWeight = 0
+  
+  nums.forEach((score, idx) => {
+    const weight = questions.value[idx].weight
+    weightedSum += score * weight
+    totalWeight += weight
+  })
+  
+  return Math.round((weightedSum / totalWeight) * 10) / 10
 })
+
 </script>
 
 <template>
@@ -74,23 +101,26 @@ const average = computed(() => {
       </button>
     </header>
 
-    <main class="scheme">
-      <div class="questions">
-        <div
-          v-for="(q, i) in questions"
-          :key="i"
-          class="row"
-        >
-          <div class="label">{{ q }}</div>
-          <div class="input">
-            <select v-model="answers[i]" @change="setAnswer(i, answers[i])">
-              <option :value="null"></option>
-              <option v-for="n in 5" :key="n" :value="n">{{ n }}</option>
-            </select>
-          </div>
-        </div>
-      </div>
-    </main>
+<main class="scheme">
+  <div class="questions">
+    <div
+      v-for="(q, i) in questions"
+      :key="i"
+      class="row"
+    >
+    <div class="label">{{ q.text }}</div>
+     <div class="input">
+  <input 
+    type="text" 
+    :value="answers[i] || ''" 
+    @input="setAnswer(i, $event.target.value)"
+    placeholder=""
+    maxlength="3"
+  />
+</div>
+    </div>
+  </div>
+</main>
 
     <footer class="result">
       Score:
@@ -140,14 +170,14 @@ h1 {
 }
 
 .mode-select button {
-  padding: 6px 12px;
+  padding: 10px 18px;
   border-radius: 6px;
   font-family: 'Manrope', sans-serif;
   border: 0;
   background: rgba(255,255,255,0.9);
   color: var(--accent);
   font-weight: 600;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 6px rgba(196, 45, 45, 0.06);
   cursor: pointer;
 }
 
@@ -164,7 +194,7 @@ h1 {
 
 .row {
   display: grid;
-  grid-template-columns: 1fr 100px;
+  grid-template-columns: 1fr 60px;
   align-items: center;
   gap: 12px;
   padding: 8px;
@@ -178,11 +208,8 @@ h1 {
   font-size: 16px;
 }
 
-.input select {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  width: 100%;
+.input input {
+  width: 50%;
   padding: 8px 12px;
   border-radius: 6px;
   border: 2px dashed rgba(0,0,0,0.14);
@@ -190,15 +217,21 @@ h1 {
   font-size: 15px;
   color: #1500d4;
   text-align: center;
-  cursor: pointer;
+  cursor: text;
   box-shadow: none;
+  font-family: 'Manrope', sans-serif;
 }
 
-.input select:focus {
+
+.input input:focus {
   outline: none;
   border-style: solid;
   border-color: var(--accent);
   box-shadow: 0 6px 18px rgba(21,0,212,0.08);
+}
+
+.input input::placeholder {
+  color: rgba(21,0,212,0.4);
 }
 
 .result {
@@ -217,6 +250,7 @@ h1 {
   border: 3px dashed var(--dashed);
   background: rgba(255,255,255,0.85);
   font-weight: 700;
+  color: #1500d4;
+  font-family: 'Manrope-bold', sans-serif;
 }
 </style>
-// ...existing code...
